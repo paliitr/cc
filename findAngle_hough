@@ -1,0 +1,56 @@
+import numpy as np
+import cv2
+import time
+import math
+threshold_value = 160
+device = cv2.VideoCapture(0)
+# device.set(15, 0.1)
+start_time = time.time()
+fr = 0
+fps = 0
+slope = 0
+moment00 = 0
+moment10 = 0
+moment01 = 0
+
+while True:
+	tick_start = cv2.getTickCount()
+	ret, frame = device.read()
+	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+	ret, thresh = cv2.threshold(gray, threshold_value, 255, cv2.THRESH_BINARY)
+	# rows, cols = frame.shape[:2]
+	# y = rows / 2
+	# ys = y - 2
+	# ye = y + 3
+	# frame_strip = frame[238:243, 0:640]
+
+	lines = cv2.HoughLines(thresh, 1, np.pi/180, 200)
+	x11, y11, x21, y21 = lines[0]	
+	x12, y12, x22, y22 = lines[1]
+
+	angle1 = math.atan2((y11 - y21)/(x11 - x21))
+	angle2 = math.atan2((y12 - y22)/(x12 - x22))
+
+	rad = (angle1 + angle2)/2
+
+	if(rad > math.pi/2):
+		rad = rad - math.pi/2
+	elif(rad < math.pi/2):
+		rad = math.pi/2 - rad
+	
+	deg = rad*180/math.pi
+
+	print('Angle: {0}'.format(deg))
+
+	tick_end = cv2.getTickCount()
+	time = (tick_end - tick_start)/cv2.getTickFrequency()
+
+	fr = fr + 1
+	if fr % 10 == 0:
+		curr_time = time.time()
+		numsec = (curr_time - start_time)
+		fps = fr / numsec
+
+	cv2.imshow('frame', thresh)
+	if cv2.waitKey(1) & 0xFF == ord('q'):
+		break
