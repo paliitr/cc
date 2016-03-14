@@ -9,11 +9,12 @@ int main() {
 		long long n;
 		cin>>n;
 		long long sum;
-		for(long long i=0; i*i <= n; i++) {
-			if(i*i ==  n) {
-				sum = sum + i;
-			} else if(i*i != n){
-				if(n%i == 0) {
+		long long root = (int) sqrt(n);
+		for(long long i=0; i <= root; i++) {
+			if(n%i == 0) {
+				if(i ==  root) {
+					sum = sum + i;
+				} else if(i != root){
 					sum = sum + i + (n/i);
 				}	
 			}
